@@ -5,8 +5,8 @@ class reviewsController {
     async all (req, res) {
         try {
             ///Посмотреть как получили PACKS неужели запрашиваем всех сразу??
-            const reviews = await Review.find()
-            return res.json(reviews);
+            const reviews = await Review.find().sort({createdAt:-1})
+            return res.json({reviews});
         }
         catch (err) {
             console.log(err)
@@ -15,8 +15,15 @@ class reviewsController {
     }
     async author (req, res) {
         try {
-            const reviews = await Review.find({user: req.user._id})
-            return res.json(reviews);
+
+           const name = req.params.name
+            const user = await User.findOne({username: name})
+            if (!user) {
+                return res.status(400).json({message: "User not found"})
+            }
+
+            const reviews = await Review.find({userId: user._id}).sort({createdAt:-1})
+            return res.json({reviews});
         }
         catch (err) {
             console.log(err)
@@ -36,7 +43,7 @@ class reviewsController {
             }
 
             const {reviewTitle, workTitle, reviewText, category, tags, authorGrade} = req.body
-            const review = new Review({user: user._id, reviewTitle, workTitle, reviewText, category, tags, authorGrade})
+            const review = new Review({userName: user.username, userId: user._id, reviewTitle, workTitle, reviewText, category, tags, authorGrade})
             // console.log('review:', review)
             await review.save()
 
@@ -59,7 +66,10 @@ class reviewsController {
             if (!user) {
                 return res.status(400).json({message: 'User not found'})
             }
-            const {reviewId, reviewTitle, workTitle, reviewText, category, tags, authorGrade} = req.body
+
+            const reviewId = req.params.id
+            const {reviewTitle, workTitle, reviewText, category, tags, authorGrade} = req.body
+
             const review = await Review.findOne({_id: reviewId})
             if (!review) {
                 return res.status(400).json({message: 'Review not found'})
@@ -86,13 +96,13 @@ class reviewsController {
             if (!user) {
                 return res.status(400).json({message: 'User not found'})
             }
-            const {reviewId} = req.body
+            const reviewId = req.params.id
             const review = await Review.findOne({_id: reviewId})
             if (!review) {
                 return res.status(400).json({message: 'Review not found'})
             }
             await Review.findOneAndDelete({_id: reviewId})
-            return res.json({message: 'Review deleted successfully ', review})
+            return  res.json({message: 'Review deleted successfully ', review})
         }
         catch (err) {
             console.log(err)

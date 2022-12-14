@@ -5,11 +5,11 @@ const router = new Router
 import {authMiddleware} from "../middleware/auth.middleware.js";
 
 router.get('/all', review.all)
-router.get('/author',authMiddleware, review.author)
+router.get('/:name', review.author)
 
 router.post('/review', authMiddleware, review.createReview)
-router.put('/review', authMiddleware, review.updateReview)
-router.patch('/review', authMiddleware, review.deleteReview)
+router.put('/review/:id', authMiddleware, review.updateReview)
+router.delete('/review/:id', authMiddleware, review.deleteReview)
 
 router.put('/like', authMiddleware, reviewsOperations.like)
 router.put('/rating', authMiddleware, reviewsOperations.rating)

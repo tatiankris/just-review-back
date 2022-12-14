@@ -1,4 +1,5 @@
 import {model, Schema} from "mongoose";
+const URL = "https://s.studiobinder.com/wp-content/uploads/2020/10/Best-Guy-Ritchie-Movies-%E2%80%94-His-Entire-Filmography-Ranked-Featured.jpeg"
 
 export const Comment = new Schema({
     author: {
@@ -18,8 +19,13 @@ export const Comment = new Schema({
 
 const Review = new Schema(
     {
-        user: {
+        userId: {
             type: Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        userName: {
+            type: Schema.Types.String,
             ref: 'User',
             required: true
         },
@@ -61,7 +67,7 @@ const Review = new Schema(
         },
         imageURL: {
             type: String,
-            default: undefined
+            default: URL
         },
     },
 {
