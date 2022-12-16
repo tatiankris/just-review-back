@@ -29,10 +29,13 @@ const Review = new Schema(
             ref: 'User',
             required: true
         },
-        tags: {
-            type: [String],
-            default: []
+        tags: [{type: Object, ref: 'Tag'}],
+        category: {
+            type: Object,
+            ref: 'Tag',
+            required: true
         },
+
         likes: {
             type: Number,
             default: 0
@@ -49,10 +52,7 @@ const Review = new Schema(
             type: String,
             required: true
         },
-        category: {
-            type: String,
-            required: true
-        },
+
         authorGrade: {
             type: Number,
             required: true
