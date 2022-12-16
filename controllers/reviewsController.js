@@ -50,7 +50,7 @@ class reviewsController {
             const oldTags = tags.filter(t => typeof t !== 'string')
             const newTags = tags.filter(t => typeof t === 'string').map(t => {return {title: t}})
             let tagsTitles = []
-            console.log("newTags.length", newTags.length)
+            // console.log("newTags.length", newTags.length)
 
             if (newTags.length) {
             try{
@@ -66,18 +66,18 @@ class reviewsController {
                 tagsTitles = oldTags.map(t => t.title)
             }
 
-            console.log("newTags", newTags)
-            console.log("oldTags", oldTags)
-
-
-            console.log("tagsTitles",tagsTitles)
+            // console.log("newTags", newTags)
+            // console.log("oldTags", oldTags)
+            //
+            //
+            // console.log("tagsTitles",tagsTitles)
 
             let reviewTags = []
             let query = Tag.find({
                 'title': { $in: tagsTitles}
             }, function(err, docs){
 
-                console.log("docs", docs);
+                // console.log("docs", docs);
                 reviewTags = docs
                 if (err) {
                     console.log("error:", err);
@@ -130,7 +130,7 @@ class reviewsController {
             const oldTags = tags.filter(t => typeof t !== 'string')
             const newTags = tags.filter(t => typeof t === 'string').map(t => {return {title: t}})
             let tagsTitles = []
-            console.log("newTags.length", newTags.length)
+            // console.log("newTags.length", newTags.length)
 
             if (newTags.length) {
                 try{
@@ -146,18 +146,18 @@ class reviewsController {
                 tagsTitles = oldTags.map(t => t.title)
             }
 
-            console.log("newTags", newTags)
-            console.log("oldTags", oldTags)
-
-
-            console.log("tagsTitles",tagsTitles)
+            // console.log("newTags", newTags)
+            // console.log("oldTags", oldTags)
+            //
+            //
+            // console.log("tagsTitles",tagsTitles)
 
             let reviewTags = []
             let query = Tag.find({
                 'title': { $in: tagsTitles}
             }, function(err, docs){
 
-                console.log("docs", docs);
+                // console.log("docs", docs);
                 reviewTags = docs
                 if (err) {
                     console.log("error:", err);

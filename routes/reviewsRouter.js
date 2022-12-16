@@ -14,9 +14,10 @@ router.delete('/review/:id', authMiddleware, review.deleteReview)
 router.put('/like', authMiddleware, reviewsOperations.like)
 router.put('/rating', authMiddleware, reviewsOperations.rating)
 
-router.post('/comment', authMiddleware, reviewsOperations.addComment)
-router.delete('/comment', authMiddleware, reviewsOperations.deleteComment)
-router.put('/comment', authMiddleware, reviewsOperations.updateComment)
+router.get('/comment/:reviewId', authMiddleware, reviewsOperations.getComments)
+router.post('/comment/:reviewId', authMiddleware, reviewsOperations.addComment)
+router.delete('/comment/:reviewId/:commentId', authMiddleware, reviewsOperations.deleteComment)
+router.put('/comment/:reviewId/:commentId', authMiddleware, reviewsOperations.updateComment)
 
 export default router
 

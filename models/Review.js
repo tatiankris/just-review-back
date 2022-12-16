@@ -1,8 +1,13 @@
 import {model, Schema} from "mongoose";
 const URL = "https://s.studiobinder.com/wp-content/uploads/2020/10/Best-Guy-Ritchie-Movies-%E2%80%94-His-Entire-Filmography-Ranked-Featured.jpeg"
 
-export const Comment = new Schema({
-    author: {
+const Comment = new Schema({
+    review: {
+        type: Schema.Types.ObjectId,
+        ref: 'Review',
+        required: true
+    },
+    user: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
@@ -15,7 +20,7 @@ export const Comment = new Schema({
     timestamps: true,
 })
 
-
+export const CommentModel = model('Comment', Comment)
 
 const Review = new Schema(
     {
@@ -29,10 +34,13 @@ const Review = new Schema(
             ref: 'User',
             required: true
         },
-        tags: [{type: Object, ref: 'Tag'}],
+        tags: [
+            {type: Object,
+            // ref: 'Tag'
+        }],
         category: {
             type: Object,
-            ref: 'Tag',
+            // ref: 'Category',
             required: true
         },
 
@@ -62,8 +70,9 @@ const Review = new Schema(
             default: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
         },
         comments: {
-            type: [Comment],
-            default: []
+            type: Number,
+            required: true,
+            default: 0
         },
         imageURL: {
             type: String,

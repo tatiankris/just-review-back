@@ -1,3 +1,7 @@
+import Review from "../models/Review.js";
+import User from "../models/User.js";
+import {CommentModel} from "../models/Review.js";
+import review from "../models/Review.js";
 
 class reviewsOperationsController {
     async like (req, res) {
@@ -18,10 +22,61 @@ class reviewsOperationsController {
             res.status(400).json({message: "Rating error"})
         }
     }
+    async getComments (req, res) {
+        try {
+            const reviewId = req.params.reviewId
 
+            if(!reviewId) {
+                return res.status(400).json({message: "Review id no found"})
+
+            }
+
+            const comments = await CommentModel.find({review: reviewId})
+            if(!comments) {
+                return res.json({message: 'Comments not found, status: 200'})
+            }
+
+            return res.json({message: 'Comments was found', comments})
+
+
+        }
+        catch (err) {
+            console.log(err)
+            res.status(400).json({message: "Rating error"})
+        }
+    }
     async addComment (req, res) {
         try {
 
+            const {reviewId} = req.params
+            if (!reviewId) {
+                return res.status(400).json({message: "Review id not found"})
+            }
+            const review = await Review.findOne({_id: reviewId})
+            if (!review) {
+                return res.status(400).json({message: "Review not found"})
+            }
+
+            const userId = req.user._id
+            if (!userId) {
+                return res.status(400).json({message: "No autorize"})
+            }
+            const user = await User.findOne({_id: userId})
+            if (!user) {
+                return res.status(400).json({message: "User not found"})
+            }
+
+            const {text} = req.body
+            if (!text) {
+                return res.status(400).json({message: "No text"})
+            }
+
+            const comment = new CommentModel({review, user, text})
+            await comment.save()
+
+            const comments = await CommentModel.find({review: reviewId})
+
+            return res.json({message: 'Comment added successfully ', comments})
         }
         catch (err) {
             console.log(err)
@@ -30,6 +85,43 @@ class reviewsOperationsController {
     }
     async updateComment (req, res) {
         try {
+            const {reviewId, commentId} = req.params
+
+            if (!reviewId) {
+                return res.status(400).json({message: "Review id not found"})
+            }
+            if (!commentId) {
+                return res.status(400).json({message: "Comment id not found"})
+            }
+            const review = await Review.findOne({_id: reviewId})
+            if (!review) {
+                return res.status(400).json({message: "Review not found"})
+            }
+
+            const userId = req.user._id
+            if (!userId) {
+                return res.status(400).json({message: "No autorize"})
+            }
+            const user = await User.findOne({_id: userId})
+            if (!user) {
+                return res.status(400).json({message: "User not found"})
+            }
+            const {text} = req.body
+            if (!text) {
+                return res.status(400).json({message: "No text"})
+            }
+            // console.log("text", text)
+
+            const comment = await CommentModel.findOneAndUpdate({_id: commentId}, {text: text})
+            if (!comment) {
+                return res.status(400).json({message: "Comment not found"})
+
+            }
+
+            const comments = await CommentModel.find({review: reviewId})
+
+
+            return res.json({message: 'Comment updated successfully ', comments})
 
         }
         catch (err) {
@@ -39,6 +131,39 @@ class reviewsOperationsController {
     }
     async deleteComment (req, res) {
         try {
+            const {reviewId, commentId} = req.params
+
+            if (!reviewId) {
+                return res.status(400).json({message: "Review id not found"})
+            }
+            if (!commentId) {
+                return res.status(400).json({message: "Comment id not found"})
+            }
+            const review = await Review.findOne({_id: reviewId})
+            if (!review) {
+                return res.status(400).json({message: "Review not found"})
+            }
+
+            const userId = req.user._id
+            if (!userId) {
+                return res.status(400).json({message: "No autorize"})
+            }
+            const user = await User.findOne({_id: userId})
+            if (!user) {
+                return res.status(400).json({message: "User not found"})
+            }
+
+            const comment = await CommentModel.findOneAndDelete({_id: commentId})
+            if (!comment) {
+                return res.status(400).json({message: "Comment not found"})
+
+            }
+
+            const comments = await CommentModel.find({review: reviewId})
+
+
+            return res.json({message: 'Comment deleted successfully ', comments})
+
 
         }
         catch (err) {
