@@ -2,6 +2,7 @@ import Review from "../models/Review.js";
 import User from "../models/User.js";
 import Tag from "../models/Tag.js";
 import Category from "../models/Category.js";
+import {LikeModel} from "../models/ReviewFeatures.js";
 
 class reviewsController {
     async all (req, res) {
@@ -93,11 +94,9 @@ class reviewsController {
 
             const reviewCategory = await Category.findOne({title: category.title})
             // console.log('category', reviewCategory)
-
             if (!reviewCategory) {
                 return res.status(400).json({message: "Create review category error"})
             }
-
 
             const review = new Review({userName: user.username, userId: user._id, reviewTitle, workTitle, reviewText, category: reviewCategory, tags: reviewTags, authorGrade})
             // console.log('review:', review)

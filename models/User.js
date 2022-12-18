@@ -19,6 +19,11 @@ const User = new Schema({
         type: String,
         default: 'https://images.pexels.com/photos/20787/pexels-photo.jpg?cs=srgb&dl=pexels-krysten-merriman-20787.jpg&fm=jpg'
     },
+    likes: {
+        type: Number,
+        required: true,
+        default: 0
+    },
     roles: [{type: String, ref: 'Role'}]
 })
 
