@@ -23,10 +23,9 @@ const Review = new Schema(
             required: true
         },
 
-        likes: {
-            type: Number,
-            required: true,
-        },
+        likes:  [{
+            type: Object,
+        }],
         reviewTitle: {
             type: String,
             required: true

@@ -7,6 +7,8 @@ import {authMiddleware} from "../middleware/auth.middleware.js";
 router.get('/all', review.all)
 router.get('/:name', review.author)
 
+router.get('/user/:username', review.user)
+
 router.post('/review', authMiddleware, review.createReview)
 router.put('/review/:id', authMiddleware, review.updateReview)
 router.delete('/review/:id', authMiddleware, review.deleteReview)

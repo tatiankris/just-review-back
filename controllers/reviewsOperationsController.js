@@ -24,9 +24,13 @@ class reviewsOperationsController {
             await like.save()
 
             const likes = await LikeModel.find({reviewId})
-            await Review.findOneAndUpdate({_id: reviewId}, {likes: likes.length})
 
-            return res.json({message: 'Liked successfully ', likes})
+            await Review.findOneAndUpdate({_id: reviewId}, {likes: likes})
+            const review = await Review.findOne({_id: reviewId})
+
+            // const authUserLikes = await LikeModel.find({reviewId, userId})
+
+            return res.json({message: 'Liked successfully ', likes: review.likes})
 
         }
         catch (err) {
@@ -53,9 +57,9 @@ class reviewsOperationsController {
             await LikeModel.findOneAndDelete({_id: like._id})
 
             const likes = await LikeModel.find({reviewId})
-            await Review.findOneAndUpdate({_id: reviewId}, {likes: likes.length})
-
-            return res.json({message: 'Disliked successfully ', likes})
+            await Review.findOneAndUpdate({_id: reviewId}, {likes: likes})
+            const review = await Review.findOne({_id: reviewId})
+            return res.json({message: 'Disliked successfully ', likes: review.likes})
         }
         catch (err) {
             console.log(err)

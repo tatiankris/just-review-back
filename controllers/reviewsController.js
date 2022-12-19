@@ -7,8 +7,17 @@ import {LikeModel} from "../models/ReviewFeatures.js";
 class reviewsController {
     async all (req, res) {
         try {
+
+            const {search} = req.params
+            if (search) {
+                const regex = new RegExp(search, 'i')
+                const reviews = await Review.find({reviewTitle: {$regex: regex} }).sort({createdAt:-1})
+
+                return res.json({reviews});
+            }
+
             ///Посмотреть как получили PACKS неужели запрашиваем всех сразу??
-            const reviews = await Review.find().sort({createdAt:-1})
+            const reviews = await Review.find({}).sort({createdAt:-1})
             return res.json({reviews});
         }
         catch (err) {
@@ -33,6 +42,32 @@ class reviewsController {
             res.status(400).json({message: "Failed to get author's reviews"})
         }
     }
+
+    async user (req, res) {
+        try {
+
+            const username = req.params.username
+            const user = await User.findOne({username: username})
+
+            if (!user) {
+                return res.status(400).json({message: "Und"})
+            }
+
+            const likes = await LikeModel.find({userId: user._id})
+
+            return res.json({user: {userId: user._id,
+                    email: user. email,
+                    username: user.username ,
+                    avatar: user.avatar,
+                    likes: likes,}});
+        }
+        catch (err) {
+            console.log(err)
+            res.status(400).json({message: "Failed to get author's reviews"})
+        }
+    }
+
+
 
     async createReview (req, res) {
         try {
