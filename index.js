@@ -6,11 +6,16 @@ import dotenv from "dotenv";
 import cors from 'cors'
 import {corsMiddleware} from "./middleware/cors.middleware.js";
 import tagsRouter from "./routes/tagsRouter.js";
+import bodyParser from 'body-parser'
+
 dotenv.config()
 
 const PORT = process.env.PORT || 5000
 
 const app = express()
+
+
+
 
 const corsOptions = {
     origin: ['https://front-fourth.vercel.app', 'http://localhost:3000', 'https://tatiankris.github.io/just-review-front'],
@@ -20,7 +25,13 @@ const corsOptions = {
 }
 app.use(cors(corsOptions))
 app.use(corsMiddleware)
+const jsonParser = bodyParser.json({limit:'5mb', type:'application/json'});
+const urlencodedParser = bodyParser.urlencoded({ extended:true,limit:'4mb',type:'application/x-www-form-urlencoded' });
+app.use(jsonParser);
+app.use(urlencodedParser);
+
 app.use(express.json())
+
 app.use('/auth', authRouter)
 app.use('/reviews', reviewsRouter)
 app.use('/tags', tagsRouter)

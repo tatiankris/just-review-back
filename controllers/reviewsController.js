@@ -3,6 +3,11 @@ import User from "../models/User.js";
 import Tag from "../models/Tag.js";
 import Category from "../models/Category.js";
 import {LikeModel} from "../models/ReviewFeatures.js";
+// import cloudinary from '../utils/cloudinary.js'
+import dotenv, {config} from "dotenv";
+dotenv.config()
+import cloudinary from 'cloudinary'
+
 
 class reviewsController {
     async all (req, res) {
@@ -250,6 +255,47 @@ class reviewsController {
         catch (err) {
             console.log(err)
             res.status(400).json({message: "Delete review error"})
+        }
+    }
+    async imageUpload (req, res) {
+        try {
+            const {file} = req.body
+            const userId = req.user._id
+            if (!file || !userId) {
+                return res.status(400).json({message: "Bad request!"})
+            }
+
+            const user = await User.findOne({_id: userId})
+            const userName = user.username
+            if (!user || !userName) {
+                return res.status(400).json({message: "User not found !"})
+            }
+
+            cloudinary.v2.config({
+                    cloud_name: process.env.CLOUD_NAME,
+                    api_key: process.env.CLOUD_KEY,
+                    api_secret: process.env.CLOUD_KEY_SECRET,
+                })
+
+            const result = await cloudinary.v2.uploader.upload(file, {
+                folder: `users/${userName}`,
+                // width: 300,
+                // crop: 'scale'
+                })
+
+            console.log(file)
+            console.log(userId)
+
+            const image = {
+                public_id: result.public_id,
+                url: result.secure_url
+            }
+
+            return res.json({message: 'Image save successfully', image})
+        }
+        catch (err) {
+            console.log(err)
+            return res.status(400).json({message: "Upload image error"})
         }
     }
 
