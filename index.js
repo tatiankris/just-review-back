@@ -15,8 +15,6 @@ const PORT = process.env.PORT || 5000
 const app = express()
 
 
-
-
 const corsOptions = {
     origin: ['https://front-fourth.vercel.app', 'http://localhost:3000', 'https://tatiankris.github.io/just-review-front'],
     credentials: true,
@@ -36,6 +34,8 @@ app.use('/auth', authRouter)
 app.use('/reviews', reviewsRouter)
 app.use('/tags', tagsRouter)
 mongoose.set('strictQuery', true);
+
+
 const start = async () => {
     try {
          await mongoose.connect("mongodb+srv://tatiana:tatiana@cluster0.f3fznh6.mongodb.net/course-proj?retryWrites=true&w=majority")

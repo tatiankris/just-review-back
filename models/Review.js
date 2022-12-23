@@ -13,6 +13,10 @@ const Review = new Schema(
             ref: 'User',
             required: true
         },
+        tagsSearch:{
+            type: Array,
+            default: []
+        },
         tags: [
             {type: Object,
             // ref: 'Tag'
@@ -47,6 +51,10 @@ const Review = new Schema(
             type: Object,
             default: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
         },
+        commentsSearch: {
+            type: String,
+            default: ''
+        },
         comments: {
             type: Number,
             required: true,
@@ -60,5 +68,9 @@ const Review = new Schema(
 {
     timestamps: true,
 })
+Review.index({"reviewText": "text", "workTitle": "text", "reviewTitle": "text"},
+    // {"weights": { workTitle: 1, reviewTitle: 2, reviewText: 3 }}
+)
+
 
 export default model('Review', Review)

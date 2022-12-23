@@ -9,15 +9,38 @@ dotenv.config()
 import cloudinary from 'cloudinary'
 
 
+
+
 class reviewsController {
     async all (req, res) {
         try {
 
-            const {search} = req.params
-            if (search) {
-                const regex = new RegExp(search, 'i')
-                const reviews = await Review.find({reviewTitle: {$regex: regex} }).sort({createdAt:-1})
 
+            const {search, tags} = req.query
+
+
+            console.log('tags', tags)
+
+            if (search && typeof search === 'string') {
+                const text = search.toUpperCase()
+                console.log(text)
+                const reg = new RegExp(text, 'i')
+                // const reviews = await Review.find({$text: {$search: reg }}) //{score: {$meta: "textScore"}}).sort({score:{$meta:"textScore"}}
+
+                if (tags) {
+                    const reviews = await Review.find({$or: [{reviewTitle: reg}, {workTitle: reg}, {reviewText: reg}, {commentsSearch: reg}], $and: [{tagsSearch: {$all: tags}}]})
+                    return res.json({reviews});
+                }
+
+                const reviews = await Review.find({$or: [{reviewTitle: reg}, {workTitle: reg}, {reviewText: reg}, {commentsSearch: reg}]})
+                return res.json({reviews});
+            }
+
+            const tagArr = await Tag.find()
+
+            if (tags) {
+                console.log('tags', tags)
+                const reviews = await Review.find({tagsSearch: {$all: tags}})
                 return res.json({reviews});
             }
 
@@ -107,6 +130,7 @@ class reviewsController {
                 tagsTitles = oldTags.map(t => t.title)
             }
 
+
             // console.log("newTags", newTags)
             // console.log("oldTags", oldTags)
             //
@@ -138,7 +162,9 @@ class reviewsController {
                 return res.status(400).json({message: "Create review category error"})
             }
 
-            const review = new Review({userName: user.username, userId: user._id, reviewTitle, workTitle, reviewText, category: reviewCategory, tags: reviewTags, authorGrade})
+            const review = new Review({userName: user.username, userId: user._id, reviewTitle, workTitle, reviewText, category: reviewCategory, tags: reviewTags, authorGrade,
+            tagsSearch: tagsTitles
+            })
             // console.log('review:', review)
             await review.save()
 
@@ -223,7 +249,7 @@ class reviewsController {
                 return res.status(400).json({message: 'Review not found'})
             }
 
-            await Review.findOneAndUpdate({_id: reviewId}, {reviewTitle, workTitle, reviewText, category: reviewCategory, tags: reviewTags, authorGrade})
+            await Review.findOneAndUpdate({_id: reviewId}, {reviewTitle, workTitle, reviewText, category: reviewCategory, tags: reviewTags, authorGrade, tagsSearch: tagsTitles})
             const updatedReview = await Review.findOne({_id: reviewId})
             return res.json({message: 'Review updated successfully ', review: updatedReview})
 

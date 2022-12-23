@@ -128,8 +128,12 @@ class reviewsOperationsController {
             const comment = new CommentModel({review, user, text})
             await comment.save()
 
+            let commentsSearch = text
+            if (!review.commentsSearch.includes(text)) {
+                commentsSearch = text.concat(review.commentsSearch.replace(/ /g,''))
+            }
 
-            await Review.findOneAndUpdate({_id: reviewId}, {comments: ++review.comments})
+            await Review.findOneAndUpdate({_id: reviewId}, {comments: ++review.comments, commentsSearch: commentsSearch})
             const comments = await CommentModel.find({review: reviewId})
 
             return res.json({message: 'Comment added successfully ', comments})
@@ -167,6 +171,13 @@ class reviewsOperationsController {
                 return res.status(400).json({message: "No text"})
             }
             // console.log("text", text)
+            const oldComment = await CommentModel.findOne({_id: commentId})
+
+            let userSearch = review.commentsSearch.concat(text)
+            if (review.commentsSearch.includes(oldComment.text)) {
+                userSearch =  review.commentsSearch.replace(oldComment.text, text)
+            }
+            await Review.findOneAndUpdate({_id: reviewId}, {commentsSearch: userSearch})
 
             const comment = await CommentModel.findOneAndUpdate({_id: commentId}, {text: text})
             if (!comment) {
@@ -214,7 +225,12 @@ class reviewsOperationsController {
                 return res.status(400).json({message: "Comment not found"})
 
             }
-            await Review.findOneAndUpdate({_id: reviewId}, {comments: --review.comments})
+
+            let userSearch = review.commentsSearch
+            if (review.commentsSearch.includes(comment.text)) {
+                userSearch =  review.commentsSearch.replace(comment.text, '')
+            }
+            await Review.findOneAndUpdate({_id: reviewId}, {comments: --review.comments, commentsSearch: userSearch})
 
             const comments = await CommentModel.find({review: reviewId})
 
