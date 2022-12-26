@@ -10,9 +10,12 @@ const storage = memoryStorage()
 export const upload = multer({storage})
 
 router.get('/all', review.all)
-router.get('/:name', review.author)
+router.get('/reviewPage/:id', review.reviewPage)
 
+router.get('/:name', review.author)
 router.get('/user/:username', review.user)
+
+
 
 router.post('/review', authMiddleware, review.createReview)
 router.put('/review/:id', authMiddleware, review.updateReview)
@@ -28,9 +31,9 @@ router.post('/comment/:reviewId', authMiddleware, reviewsOperations.addComment)
 router.delete('/comment/:reviewId/:commentId', authMiddleware, reviewsOperations.deleteComment)
 router.put('/comment/:reviewId/:commentId', authMiddleware, reviewsOperations.updateComment)
 
-router.post('/images',
-    // upload.single('image'),
-    authMiddleware, review.imageUpload)
+router.post('/images', authMiddleware, review.imageUpload)
+// router.post('/images', authMiddleware, review.imageReload)
+// router.post('/images', authMiddleware, review.imageDelete)
 
 export default router
 

@@ -7,6 +7,7 @@ import {LikeModel} from "../models/ReviewFeatures.js";
 import dotenv, {config} from "dotenv";
 dotenv.config()
 import cloudinary from 'cloudinary'
+import bcrypt from "bcryptjs";
 
 
 
@@ -16,7 +17,10 @@ class reviewsController {
         try {
 
 
-            const {search, tags} = req.query
+            const {search, tags, isMain} = req.query
+
+            console.log('isMain', isMain)
+
 
 
             console.log('tags', tags)
@@ -25,15 +29,14 @@ class reviewsController {
                 const text = search.toUpperCase()
                 console.log(text)
                 const reg = new RegExp(text, 'i')
-                // const reviews = await Review.find({$text: {$search: reg }}) //{score: {$meta: "textScore"}}).sort({score:{$meta:"textScore"}}
 
                 if (tags) {
                     const reviews = await Review.find({$or: [{reviewTitle: reg}, {workTitle: reg}, {reviewText: reg}, {commentsSearch: reg}], $and: [{tagsSearch: {$all: tags}}]})
-                    return res.json({reviews});
+                    return res.json({reviews, isMain: false});
                 }
 
                 const reviews = await Review.find({$or: [{reviewTitle: reg}, {workTitle: reg}, {reviewText: reg}, {commentsSearch: reg}]})
-                return res.json({reviews});
+                return res.json({reviews, isMain: false});
             }
 
             const tagArr = await Tag.find()
@@ -41,18 +44,59 @@ class reviewsController {
             if (tags) {
                 console.log('tags', tags)
                 const reviews = await Review.find({tagsSearch: {$all: tags}})
-                return res.json({reviews});
+                return res.json({reviews, isMain: false});
             }
+
+            if (isMain) {
+                const latest = await Review.find({}).sort({createdAt:-1}).limit(10)
+                const highestRating = await Review.find({}).sort({authorGrade: -1}).limit(10)
+
+
+                return res.json({latest,highestRating, isMain: true});
+            }
+
 
             ///Посмотреть как получили PACKS неужели запрашиваем всех сразу??
             const reviews = await Review.find({}).sort({createdAt:-1})
-            return res.json({reviews});
+            return res.json({reviews, isMain: false});
         }
         catch (err) {
             console.log(err)
             res.status(400).json({message: "Failed to get reviews"})
         }
     }
+
+    async reviewPage (req, res) {
+        try {
+            const reviewId = req.params.id
+
+            console.log('reviewId', reviewId)
+            if (!reviewId) {
+                return res.status(400).json({message: "Bad request"})
+            }
+
+            const review = await Review.findOne({_id: reviewId})
+            console.log('review', review)
+            if (!review) {
+                return res.status(400).json({message: "Review not found"})
+            }
+
+            const userId = review.userId
+            const user = await User.findOne({_id: userId})
+            if (!user) {
+                return res.status(400).json({message: "User not found"})
+            }
+
+            const userAvatar = user.avatar
+
+            return res.json({review, userAvatar})
+        }
+        catch (err) {
+            console.log(err)
+            res.status(400).json({message: "Login error!"})
+        }
+    }
+
     async author (req, res) {
         try {
 
