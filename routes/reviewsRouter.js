@@ -31,7 +31,7 @@ router.post('/comment/:reviewId', authMiddleware, reviewsOperations.addComment)
 router.delete('/comment/:reviewId/:commentId', authMiddleware, reviewsOperations.deleteComment)
 router.put('/comment/:reviewId/:commentId', authMiddleware, reviewsOperations.updateComment)
 
-router.post('/images', authMiddleware, review.imageUpload)
+// router.post('/images', authMiddleware, review.imageUpload)
 // router.post('/images', authMiddleware, review.imageReload)
 // router.post('/images', authMiddleware, review.imageDelete)
 

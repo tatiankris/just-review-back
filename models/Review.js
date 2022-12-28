@@ -62,8 +62,11 @@ const Review = new Schema(
         },
         imageURL: {
             type: String,
-            default: URL
+            default: ''
         },
+        imageId: {
+            type: String,
+        }
     },
 {
     timestamps: true,

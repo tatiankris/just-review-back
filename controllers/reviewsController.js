@@ -8,7 +8,7 @@ import dotenv, {config} from "dotenv";
 dotenv.config()
 import cloudinary from 'cloudinary'
 import bcrypt from "bcryptjs";
-
+import images from '../controllers/imagesController.js'
 
 
 
@@ -152,13 +152,12 @@ class reviewsController {
                 return res.status(400).json({message: 'User not found'})
             }
 
-            const {reviewTitle, workTitle, reviewText, category, tags, authorGrade} = req.body
+            const {reviewTitle, workTitle, reviewText, category, tags, authorGrade, file} = req.body
 
             //tags
             const oldTags = tags.filter(t => typeof t !== 'string')
             const newTags = tags.filter(t => typeof t === 'string').map(t => {return {title: t}})
             let tagsTitles = []
-            // console.log("newTags.length", newTags.length)
 
             if (newTags.length) {
             try{
@@ -173,13 +172,6 @@ class reviewsController {
             if (!newTags.length) {
                 tagsTitles = oldTags.map(t => t.title)
             }
-
-
-            // console.log("newTags", newTags)
-            // console.log("oldTags", oldTags)
-            //
-            //
-            // console.log("tagsTitles",tagsTitles)
 
             let reviewTags = []
             let query = Tag.find({
@@ -201,7 +193,7 @@ class reviewsController {
             //category
 
             const reviewCategory = await Category.findOne({title: category.title})
-            // console.log('category', reviewCategory)
+
             if (!reviewCategory) {
                 return res.status(400).json({message: "Create review category error"})
             }
@@ -209,11 +201,30 @@ class reviewsController {
             const review = new Review({userName: user.username, userId: user._id, reviewTitle, workTitle, reviewText, category: reviewCategory, tags: reviewTags, authorGrade,
             tagsSearch: tagsTitles
             })
-            // console.log('review:', review)
+
             await review.save()
 
-            return res.json({message: 'Review created successfully ', review})
 
+            //IMG
+            if (file) {
+
+                console.log('file', file)
+
+                const userId = user._id
+                const reviewId = review._id
+                const image = await images.imageUpload({userId, reviewId, file})
+
+                if (image.warning || image.messageError) {
+                    console.log('image.warning', image )
+                    return res.json({message: 'Review created successfully ', review, imageMessage: image.warning || image.messageError})
+                }
+
+                const uploadImageReview = await Review.findOneAndUpdate({_id: reviewId}, {imageURL: image.url, imageId: image.publicId})
+
+                return res.json({message: 'Review created successfully ', review: uploadImageReview})
+            }
+
+            return res.json({message: 'Review created successfully ', review})
 
         }
         catch (err) {
@@ -233,7 +244,7 @@ class reviewsController {
             }
 
             const reviewId = req.params.id
-            const {reviewTitle, workTitle, reviewText, category, tags, authorGrade} = req.body
+            const {reviewTitle, workTitle, reviewText, category, tags, authorGrade, file} = req.body
 
             ///tags and category
             const oldTags = tags.filter(t => typeof t !== 'string')
@@ -255,18 +266,11 @@ class reviewsController {
                 tagsTitles = oldTags.map(t => t.title)
             }
 
-            // console.log("newTags", newTags)
-            // console.log("oldTags", oldTags)
-            //
-            //
-            // console.log("tagsTitles",tagsTitles)
-
             let reviewTags = []
             let query = Tag.find({
                 'title': { $in: tagsTitles}
             }, function(err, docs){
 
-                // console.log("docs", docs);
                 reviewTags = docs
                 if (err) {
                     console.log("error:", err);
@@ -275,22 +279,68 @@ class reviewsController {
                 }
             });
             await query.clone();
-            // console.log('reviewTags', reviewTags)
-
-
-            //category
 
             const reviewCategory = await Category.findOne({title: category.title})
-            // console.log('category', reviewCategory)
 
             if (!reviewCategory) {
                 return res.status(400).json({message: "Create review category error"})
             }
-            ////
 
             const review = await Review.findOne({_id: reviewId})
             if (!review) {
                 return res.status(400).json({message: 'Review not found'})
+            }
+
+            ///IMG
+            //если не изменилась картинка
+            if (file && review.imageURL.length && file === review.imageURL) {
+
+                await Review.findOneAndUpdate({_id: reviewId}, {reviewTitle, workTitle, reviewText, category: reviewCategory, tags: reviewTags, authorGrade, tagsSearch: tagsTitles})
+                const updatedReview = await Review.findOne({_id: reviewId})
+                return res.json({message: 'Review updated successfully ', review: updatedReview})
+
+            }
+
+            const userId = user._id
+           //Если картинка уже есть в облаке, но хотят изменить на новую
+
+            if (file && review.imageURL.length && file !== review.imageURL) {
+                const image = await images.imageReload({reviewId, userId, file, publicId: review.imageId})
+
+                if (image.warning || image.messageError) {
+                    console.log('image.warning', image )
+                    return res.json({message: 'Review created successfully ', review, imageMessage: image.warning || image.messageError})
+                }
+                await Review.findOneAndUpdate({_id: reviewId}, {reviewTitle, workTitle, reviewText, category: reviewCategory,
+                    tags: reviewTags, authorGrade, tagsSearch: tagsTitles, imageURL: image.url, imageId: image.publicId })
+                const updatedReview = await Review.findOne({_id: reviewId})
+
+                return res.json({message: 'Review updated successfully ', review: updatedReview})
+            }
+
+            //Если картинки в облаке еще нет, и решили все же загрузить (в первый раз)
+            if (file && !review.imageURL.length) {
+                 const image = await images.imageUpload({reviewId, userId, file})
+
+                if (image.warning || image.messageError) {
+                    console.log('image.warning', image )
+                    return res.json({message: 'Review created successfully ', review, imageMessage: image.warning || image.messageError})
+                }
+
+                await Review.findOneAndUpdate({_id: reviewId}, {reviewTitle, workTitle, reviewText, category: reviewCategory,
+                    tags: reviewTags, authorGrade, tagsSearch: tagsTitles, imageURL: image.url, imageId: image.publicId })
+                const updatedReview = await Review.findOne({_id: reviewId})
+
+                return res.json({message: 'Review updated successfully ', review: updatedReview})
+            }
+            //Если картинка есть в облаке, но хотят удалить
+            if (!file && review.imageURL.length) {
+                const deleteRes = await images.imageDelete({publicId: review.imageId})
+
+                await Review.findOneAndUpdate({_id: reviewId}, {reviewTitle, workTitle, reviewText, category: reviewCategory,
+                    tags: reviewTags, authorGrade, tagsSearch: tagsTitles, imageURL: '', imageId: '' })
+                const updatedReview = await Review.findOne({_id: reviewId})
+                return res.json({message: 'Review updated successfully ', review: updatedReview})
             }
 
             await Review.findOneAndUpdate({_id: reviewId}, {reviewTitle, workTitle, reviewText, category: reviewCategory, tags: reviewTags, authorGrade, tagsSearch: tagsTitles})
@@ -319,6 +369,11 @@ class reviewsController {
             if (!review) {
                 return res.status(400).json({message: 'Review not found'})
             }
+
+            if (review.imageId) {
+                const response = await images.imageDelete({userId: _id, reviewId})
+            }
+
             await Review.findOneAndDelete({_id: reviewId})
             return  res.json({message: 'Review deleted successfully ', review})
         }
@@ -327,49 +382,6 @@ class reviewsController {
             res.status(400).json({message: "Delete review error"})
         }
     }
-    async imageUpload (req, res) {
-        try {
-            const {file} = req.body
-            const userId = req.user._id
-            if (!file || !userId) {
-                return res.status(400).json({message: "Bad request!"})
-            }
-
-            const user = await User.findOne({_id: userId})
-            const userName = user.username
-            if (!user || !userName) {
-                return res.status(400).json({message: "User not found !"})
-            }
-
-            cloudinary.v2.config({
-                    cloud_name: process.env.CLOUD_NAME,
-                    api_key: process.env.CLOUD_KEY,
-                    api_secret: process.env.CLOUD_KEY_SECRET,
-                })
-
-            const result = await cloudinary.v2.uploader.upload(file, {
-                folder: `users/${userName}`,
-                // width: 300,
-                // crop: 'scale'
-                })
-
-            console.log(file)
-            console.log(userId)
-
-            const image = {
-                public_id: result.public_id,
-                url: result.secure_url
-            }
-
-            return res.json({message: 'Image save successfully', image})
-        }
-        catch (err) {
-            console.log(err)
-            return res.status(400).json({message: "Upload image error"})
-        }
-    }
-
-
 }
 
 export default new reviewsController
