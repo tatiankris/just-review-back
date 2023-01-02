@@ -62,6 +62,7 @@ class authController {
     }
     async authMe (req, res) {
         try {
+            console.log('req.user', req.user)
             const user = await User.findOne({_id: req.user._id})
             const token = generateAccessToken(user._id, user.roles)
             return res.json({token, user})
@@ -80,6 +81,75 @@ class authController {
         catch (err) {
             console.log(err)
             res.status(400).json({message: "Get users error!"})
+        }
+    }
+    async googleSuccess (req, res) {
+        try {
+            if (req.user) {
+                const email = req.user.email
+
+
+                const userRole = await Role.findOne({value: 'USER'})
+
+                if(email.provider && email.provider === 'github') {
+                    const passwordHash = bcrypt.hashSync(email.username, 7)
+
+                    console.log("password Hashed", passwordHash)
+                    const user = await User.findOrCreate({
+                        email: email.profileUrl
+                    }, {
+                        email: email.profileUrl,
+                        password: passwordHash,
+                        username: email.username,
+                        avatar: email.photos[0].value,
+                        roles: [userRole.value]
+                    })
+
+                    const getUser = await User.findOne({email: email.profileUrl})
+                    const token = generateAccessToken(getUser._id, getUser.roles)
+
+                    return res.status(200).json({
+                        success: true,
+                        message: "successfull",
+                        user: getUser,
+                        token: token
+                        //cookies: req.cookies
+                    });
+
+                } else {
+
+                    console.log("email.id", email.emails[0].value)
+                    const passwordHash = bcrypt.hashSync(email.emails[0].value.slice(0, 6), 7)
+
+                    console.log("password Hashed", passwordHash)
+                    const user = await User.findOrCreate({
+                        email: email.emails[0].value
+                    }, {
+                        email: email.emails[0].value,
+                        password: passwordHash,
+                        username: email.emails[0].value.slice(0, -10),
+                        avatar: email.photos[0].value,
+                        roles: [userRole.value]
+                    })
+
+                    const getUser = await User.findOne({email: email.emails[0].value})
+                    const token = generateAccessToken(getUser._id, getUser.roles)
+
+                    return res.status(200).json({
+                        success: true,
+                        message: "successfull",
+                        user: getUser,
+                        token: token
+                        //cookies: req.cookies
+                    });
+                }
+            } else {
+                return res.status(403).json({error: true, message: 'Not authorized'})
+            }
+        }
+        catch (err) {
+            console.log(err)
+            return res.status(400).json({message: "Get users error!"})
         }
     }
 

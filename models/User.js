@@ -1,4 +1,5 @@
 import {model, Schema} from "mongoose";
+import findOrCreate from 'mongoose-findorcreate'
 
 const User = new Schema({
     email: {
@@ -8,7 +9,7 @@ const User = new Schema({
     },
     password: {
         type: String,
-        required: true
+        // required: true
     },
     username: {
         type: String,
@@ -24,5 +25,7 @@ const User = new Schema({
     }],
     roles: [{type: String, ref: 'Role'}]
 })
+
+User.plugin(findOrCreate);
 
 export default model('User', User)

@@ -6,7 +6,10 @@ import dotenv from "dotenv";
 import cors from 'cors'
 import {corsMiddleware} from "./middleware/cors.middleware.js";
 import tagsRouter from "./routes/tagsRouter.js";
-import bodyParser from 'body-parser'
+import bodyParser from 'body-parser';
+import passport from 'passport';
+import cookieSession from 'cookie-session';
+import "./passportAuth/passport.js"
 
 dotenv.config()
 
@@ -16,13 +19,24 @@ const app = express()
 
 
 const corsOptions = {
-    origin: ['https://front-fourth.vercel.app', 'http://localhost:3000', 'https://tatiankris.github.io/just-review-front'],
+    origin: ['https://front-fourth.vercel.app',
+             'http://localhost:3000',
+        'https://tatiankris.github.io/just-review-front'
+    ],
     credentials: true,
     optionsSuccessStatus: 200,
-    methods: ['GET', 'PUT', 'POST', 'DELETE']
+    methods: ['GET', 'PUT', 'POST', 'DELETE'],
 }
+
+
+app.use(
+    cookieSession({ name: "session", keys: ["myReview"], maxAge: 24 * 60 * 60 * 100 })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(cors(corsOptions))
-app.use(corsMiddleware)
+// app.use(corsMiddleware)
 const jsonParser = bodyParser.json({limit:'5mb', type:'application/json'});
 const urlencodedParser = bodyParser.urlencoded({ extended:true,limit:'4mb',type:'application/x-www-form-urlencoded' });
 app.use(jsonParser);
