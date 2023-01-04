@@ -36,7 +36,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(cors(corsOptions))
-// app.use(corsMiddleware)
+app.use(corsMiddleware)
 const jsonParser = bodyParser.json({limit:'5mb', type:'application/json'});
 const urlencodedParser = bodyParser.urlencoded({ extended:true,limit:'4mb',type:'application/x-www-form-urlencoded' });
 app.use(jsonParser);
