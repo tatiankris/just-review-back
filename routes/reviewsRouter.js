@@ -25,6 +25,7 @@ router.post('/like', authMiddleware, reviewsOperations.addLike)
 router.delete('/like/:reviewId', authMiddleware, reviewsOperations.deleteLike)
 
 router.put('/rating', authMiddleware, reviewsOperations.rating)
+router.post('/ratingTest', reviewsOperations.testRating)
 
 router.get('/comment/:reviewId', authMiddleware, reviewsOperations.getComments)
 router.post('/comment/:reviewId', authMiddleware, reviewsOperations.addComment)

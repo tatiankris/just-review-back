@@ -2,7 +2,7 @@ import Review from "../models/Review.js";
 import User from "../models/User.js";
 import Tag from "../models/Tag.js";
 import Category from "../models/Category.js";
-import {LikeModel} from "../models/ReviewFeatures.js";
+import {CommentModel, LikeModel, RatingModel} from "../models/ReviewFeatures.js";
 // import cloudinary from '../utils/cloudinary.js'
 import dotenv, {config} from "dotenv";
 dotenv.config()
@@ -126,12 +126,14 @@ class reviewsController {
             }
 
             const likes = await LikeModel.find({userId: user._id})
-
+            const ratings = await RatingModel.find({userId: user._id})
             return res.json({user: {userId: user._id,
                     email: user. email,
                     username: user.username ,
                     avatar: user.avatar,
-                    likes: likes,}});
+                    likes: likes,
+                    ratings: ratings
+                }});
         }
         catch (err) {
             console.log(err)
@@ -375,6 +377,9 @@ class reviewsController {
             }
 
             await Review.findOneAndDelete({_id: reviewId})
+            await RatingModel.deleteMany({reviewId})
+            await LikeModel.deleteMany({reviewId})
+            await CommentModel.deleteMany({reviewId})
             return  res.json({message: 'Review deleted successfully ', review})
         }
         catch (err) {

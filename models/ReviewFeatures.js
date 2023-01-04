@@ -36,3 +36,24 @@ const Like = new Schema({
 })
 
 export const LikeModel = model('Like', Like)
+
+const Rating = new Schema({
+    reviewId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Review',
+        required: true
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    rating: {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 5
+    }
+})
+
+export const RatingModel = model('Rating', Rating)

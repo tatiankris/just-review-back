@@ -47,9 +47,11 @@ const Review = new Schema(
             type: Number,
             required: true
         },
-        overallRating: {
-            type: Object,
-            default: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
+        rating: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 5
         },
         commentsSearch: {
             type: String,

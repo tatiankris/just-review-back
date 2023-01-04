@@ -1,6 +1,6 @@
 import Review from "../models/Review.js";
 import User from "../models/User.js";
-import {CommentModel, LikeModel} from "../models/ReviewFeatures.js";
+import {CommentModel, LikeModel, RatingModel} from "../models/ReviewFeatures.js";
 import review from "../models/Review.js";
 
 class reviewsOperationsController {
@@ -70,12 +70,106 @@ class reviewsOperationsController {
     async rating (req, res) {
         try {
 
+            const {reviewId, value} = req.body
+            if (!reviewId || !value) {
+                return res.status(400).json({message: "Review or value id no found"})
+            }
+
+            const userId = req.user._id
+            if (!userId) {
+                return res.status(400).json({message: "No authorize"})
+            }
+            const reviewCheck = await RatingModel.findOne({userId, reviewId})
+
+            if (reviewCheck) {
+                if (reviewCheck.rating === value) {
+                    return;
+
+                } else {
+
+                    await RatingModel.findOneAndUpdate({userId, reviewId}, {rating: value})
+
+                    const averageRating = await RatingModel.aggregate(
+                        [
+                            {"$group": {
+                                    "_id": "$reviewId",
+                                    "AverageRating": { "$avg": { "$ifNull": ["$rating",0 ] } },
+                                }
+                            },
+                        ]
+                    )
+
+                    const ratingObject = averageRating.find(el => el._id == reviewId)
+                    await Review.findOneAndUpdate({_id: reviewId}, {rating: ratingObject.AverageRating})
+
+                    // await Review.findOneAndUpdate({_id: reviewId}, {rating: averageRating.AverageRating}).aggregate
+                    return res.json({message: 'Rated successfully ', userRating: value, averageRating: ratingObject.AverageRating})                }
+
+            }
+
+            if (!reviewCheck) {
+                const rating = new RatingModel({userId, reviewId, value})
+                await rating.save()
+
+                const averageRating = await RatingModel.aggregate(
+                    [
+                        {"$group": {
+                                "_id": "$reviewId",
+                                "AverageRating": { "$avg": { "$ifNull": ["$rating",0 ] } },
+                            }
+                        },
+                    ]
+                )
+
+                const ratingObject = averageRating.find(el => el._id == reviewId)
+                await Review.findOneAndUpdate({_id: reviewId}, {rating: ratingObject.AverageRating})
+
+                // await Review.findOneAndUpdate({_id: reviewId}, {rating: averageRating.AverageRating}).aggregate
+                return res.json({message: 'Rated successfully ', userRating: value, averageRating: ratingObject.AverageRating})
+        }
+
+        }
+        catch (err) {
+            console.log(err)
+            return res.status(400).json({message: "Rating error"})
+        }
+    }
+
+    async testRating (req, res) {
+        try {
+            const {reviewId} = req.body
+
+            if(!reviewId) {
+                return res.status(400).json({message: "Review id no found"})
+            }
+            const averageRating = await RatingModel.aggregate(
+                [
+                    {"$group": {
+                            "_id": "$reviewId",
+                            "AverageRating": { "$avg": { "$ifNull": ["$rating",0 ] } },
+                        }
+                    },
+                    // {$match: {'_id': "63b46e0c3795e45b08df7d41"}},
+                ]
+            )
+
+            const ratingObject = averageRating.find(el => el._id == reviewId)
+            await Review.findOneAndUpdate({_id: reviewId}, {rating: ratingObject.AverageRating})
+
+            return res.json({message: 'Rated successfully ', averageRating: ratingObject.AverageRating})
+
+
+
+
+
         }
         catch (err) {
             console.log(err)
             res.status(400).json({message: "Rating error"})
         }
     }
+
+
     async getComments (req, res) {
         try {
             const reviewId = req.params.reviewId
@@ -96,7 +190,7 @@ class reviewsOperationsController {
         }
         catch (err) {
             console.log(err)
-            res.status(400).json({message: "Rating error"})
+            res.status(400).json({message: "Get comments error"})
         }
     }
     async addComment (req, res) {
