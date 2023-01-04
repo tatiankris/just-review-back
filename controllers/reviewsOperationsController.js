@@ -89,6 +89,9 @@ class reviewsOperationsController {
 
                     await RatingModel.findOneAndUpdate({userId, reviewId}, {rating: value})
 
+                    const userRatings = await RatingModel.find({userId})
+                    await User.findOneAndUpdate({_id: userId}, {ratings: userRatings})
+
                     const averageRating = await RatingModel.aggregate(
                         [
                             {"$group": {
@@ -103,13 +106,19 @@ class reviewsOperationsController {
                     await Review.findOneAndUpdate({_id: reviewId}, {rating: ratingObject.AverageRating})
 
                     // await Review.findOneAndUpdate({_id: reviewId}, {rating: averageRating.AverageRating}).aggregate
-                    return res.json({message: 'Rated successfully ', userRating: value, averageRating: ratingObject.AverageRating})                }
+                    return res.json({message: 'Rated successfully ', userRatings, averageRating: ratingObject.AverageRating})                }
 
             }
 
             if (!reviewCheck) {
-                const rating = new RatingModel({userId, reviewId, value})
+
+                console.log("value", value)
+                const rating = new RatingModel({reviewId, userId, rating: value})
                 await rating.save()
+
+
+                const userRatings = await RatingModel.find({userId})
+                await User.findOneAndUpdate({_id: userId}, {ratings: userRatings})
 
                 const averageRating = await RatingModel.aggregate(
                     [
@@ -120,12 +129,11 @@ class reviewsOperationsController {
                         },
                     ]
                 )
-
                 const ratingObject = averageRating.find(el => el._id == reviewId)
                 await Review.findOneAndUpdate({_id: reviewId}, {rating: ratingObject.AverageRating})
 
                 // await Review.findOneAndUpdate({_id: reviewId}, {rating: averageRating.AverageRating}).aggregate
-                return res.json({message: 'Rated successfully ', userRating: value, averageRating: ratingObject.AverageRating})
+                return res.json({message: 'Rated successfully ', userRatings, averageRating: ratingObject.AverageRating})
         }
 
         }

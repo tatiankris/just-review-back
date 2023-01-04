@@ -126,13 +126,12 @@ class reviewsController {
             }
 
             const likes = await LikeModel.find({userId: user._id})
-            const ratings = await RatingModel.find({userId: user._id})
+            // const ratings = await RatingModel.find({userId: user._id})
             return res.json({user: {userId: user._id,
                     email: user. email,
                     username: user.username ,
                     avatar: user.avatar,
                     likes: likes,
-                    ratings: ratings
                 }});
         }
         catch (err) {

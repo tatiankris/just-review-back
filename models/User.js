@@ -23,6 +23,9 @@ const User = new Schema({
     likes: [{
         type: Object,
     }],
+    ratings: [{
+        type: Object,
+    }],
     roles: [{type: String, ref: 'Role'}]
 })
 
