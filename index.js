@@ -19,7 +19,7 @@ const app = express()
 
 
 const corsOptions = {
-    origin: ['https://front-fourth.vercel.app',
+    origin: ['https://just-review-front.vercel.app/',
              'http://localhost:3000',
         'https://tatiankris.github.io/just-review-front'
     ],

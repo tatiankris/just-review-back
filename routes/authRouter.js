@@ -5,7 +5,7 @@ import {authMiddleware} from '../middleware/auth.middleware.js'
 import {roleMiddleware} from "../middleware/role.middleware.js";
 import passport from "passport";
 const router = new Router()
-const CLIENT_URL = 'http://localhost:3000';
+const CLIENT_URL = 'https://just-review-front.vercel.app/' //'http://localhost:3000';
 
 router.post('/registration',
     [
