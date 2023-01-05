@@ -85,6 +85,7 @@ class authController {
     }
     async googleSuccess (req, res) {
         try {
+            console.log('REQQQQQQISS', req.user)
             if (req.user) {
                 const email = req.user.email
 

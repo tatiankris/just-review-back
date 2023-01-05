@@ -19,13 +19,18 @@ const app = express()
 
 
 const corsOptions = {
-    origin: ['https://just-review-front.vercel.app',
+    origin:
+        // 'https://tatiankris.github.io'
+        ['https://just-review-front.vercel.app',
              'http://localhost:3000',
-        'https://tatiankris.github.io/just-review-front'
-    ],
+        'https://tatiankris.github.io/just-review-front',
+        'https://tatiankris.github.io'
+    ]
+    ,
     credentials: true,
     optionsSuccessStatus: 200,
-    methods: ['GET', 'PUT', 'POST', 'DELETE'],
+    methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Requested-With', 'Accept', 'Accept-Version', 'Content-Length', 'Content-MD5', 'Date', 'X-Api-Version']
 }
 
 
@@ -36,7 +41,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(cors(corsOptions))
-app.use(corsMiddleware)
+// app.use(corsMiddleware)
+
 const jsonParser = bodyParser.json({limit:'5mb', type:'application/json'});
 const urlencodedParser = bodyParser.urlencoded({ extended:true,limit:'4mb',type:'application/x-www-form-urlencoded' });
 app.use(jsonParser);
