@@ -15,7 +15,7 @@ const generateAccessToken = (_id, roles) => {
 }
 
 const GOOGLE_CLIENT_ID = '301022637814-i3noevnhjjh0rn88avi7p3d0q5m6hucj.apps.googleusercontent.com'
-const GOOGLE_CLIENT_SECRET = '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'
+const GOOGLE_CLIENT_SECRET = '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'
 
 const GITHUB_CLIENT_ID = '51eed0be7af19f448be0'
 const GITHUB_CLIENT_SECRET = '6e6b1836187f647d37de9c89bd8d12df33c14150'
