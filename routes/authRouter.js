@@ -5,7 +5,7 @@ import {authMiddleware} from '../middleware/auth.middleware.js'
 import {roleMiddleware} from "../middleware/role.middleware.js";
 import passport from "passport";
 const router = new Router()
-const CLIENT_URL = 'https://tatiankris.github.io/just-review-front/#/google' // 'https://just-review-front.vercel.app/' //'http://localhost:3000';
+const CLIENT_URL = 'https://just-review-front.vercel.app' // 'https://just-review-front.vercel.app/' //'http://localhost:3000';
 
 router.post('/registration',
     [
@@ -39,7 +39,7 @@ router.get('/google/callback', passport.authenticate("google", {
 }));
 router.get('/github', passport.authenticate("github", { scope: ['profile', 'email']}));
 router.get('/github/callback', passport.authenticate("github", {
-    successRedirect: CLIENT_URL,
+    successRedirect: CLIENT_URL + '/google',
     failureRedirect: "/login/failed"
 }));
 
