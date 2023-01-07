@@ -106,6 +106,61 @@ class reviewsController {
                 return res.status(400).json({message: "User not found"})
             }
 
+            const {create, grade, rating, category} = req.query
+
+            if (category === 'null') {
+                if (grade !== 'null') {
+                    console.log('grade', grade)
+                    const sort = Number(grade)
+                    const reviews = await Review.find({userId: user._id}).sort({authorGrade: sort})
+                    return res.json({reviews});
+                }
+
+                if (rating !== 'null') {
+                    console.log('rating')
+                    const sort = Number(rating)
+                    const reviews = await Review.find({userId: user._id}).sort({rating: sort})
+                    return res.json({reviews});
+                }
+
+                if (create !== 'null') {
+                    console.log('мЫ попали')
+                    const sort = Number(create)
+                    const reviews = await Review.find({userId: user._id}).sort({createdAt: sort})
+                    return res.json({reviews});
+                }
+            } else {
+                if (grade !== 'null') {
+                    console.log('grade', grade)
+                    const sort = Number(grade)
+                    const reviews = await Review.find({
+                        userId: user._id,
+                        'category.title': category
+                    }).sort({authorGrade: sort})
+                    return res.json({reviews});
+                }
+
+                if (rating !== 'null') {
+                    console.log('rating')
+                    const sort = Number(rating)
+                    const reviews = await Review.find({
+                        userId: user._id,
+                        'category.title': category
+                    }).sort({rating: sort})
+                    return res.json({reviews});
+                }
+
+                if (create !== 'null') {
+                    console.log('мЫ попали')
+                    const sort = Number(create)
+                    const reviews = await Review.find({
+                        userId: user._id,
+                        'category.title': category
+                    }).sort({createdAt: sort})
+                    return res.json({reviews});
+                }
+            }
+
             const reviews = await Review.find({userId: user._id}).sort({createdAt:-1})
             return res.json({reviews});
         }
@@ -126,12 +181,16 @@ class reviewsController {
             }
 
             const likes = await LikeModel.find({userId: user._id})
+            const reviews = await Review.find({userId: user._id})
             // const ratings = await RatingModel.find({userId: user._id})
+
             return res.json({user: {userId: user._id,
                     email: user. email,
                     username: user.username ,
                     avatar: user.avatar,
                     likes: likes,
+                    reviews: reviews,
+                    roles: user.roles
                 }});
         }
         catch (err) {
@@ -144,11 +203,20 @@ class reviewsController {
 
     async createReview (req, res) {
         try {
-            const _id = req.user._id
-            // console.log('id:', _id)
+
+            const authUserId = req.user._id
+            const authUser = await User.findOne({_id: authUserId})
+
+            const _id = req.params.userId
+            console.log('authUser.roles', authUser.roles.includes('ADMIN'))
+            console.log('idS', authUserId, _id )
+
+            if (authUserId !== _id && !authUser.roles.includes('ADMIN')) {
+                return res.status(400).json({message: "Overview creation is not possible"})
+            }
 
             const user = await User.findOne({_id})
-            // console.log('user:', user)
+
             if (!user) {
                 return res.status(400).json({message: 'User not found'})
             }

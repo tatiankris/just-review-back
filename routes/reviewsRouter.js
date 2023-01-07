@@ -17,7 +17,7 @@ router.get('/user/:username', review.user)
 
 
 
-router.post('/review', authMiddleware, review.createReview)
+router.post('/review/:userId', authMiddleware, review.createReview)
 router.put('/review/:id', authMiddleware, review.updateReview)
 router.delete('/review/:id', authMiddleware, review.deleteReview)
 
