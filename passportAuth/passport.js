@@ -22,7 +22,7 @@ const GITHUB_CLIENT_SECRET = '6e6b1836187f647d37de9c89bd8d12df33c14150'
 passport.use(new GoogleStrategy({
     clientID: GOOGLE_CLIENT_ID,
     clientSecret: GOOGLE_CLIENT_SECRET,
-    callbackURL: '/auth/google/callback'
+    callbackURL: 'https://just-review-back.vercel.app/auth/google/callback'
     },
     function (accessToken, refreshToken, profile, email, done) {
 
@@ -46,7 +46,7 @@ passport.use(new GoogleStrategy({
 passport.use(new GitHubStrategy({
         clientID: GITHUB_CLIENT_ID,
         clientSecret: GITHUB_CLIENT_SECRET,
-        callbackURL: '/auth/github/callback'
+        callbackURL: 'https://just-review-back.vercel.app/auth/github/callback'
     },
     function (accessToken, refreshToken, profile, email, done) {
 
