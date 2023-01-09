@@ -46,7 +46,7 @@ passport.use(new GoogleStrategy({
 passport.use(new GitHubStrategy({
         clientID: GITHUB_CLIENT_ID,
         clientSecret: GITHUB_CLIENT_SECRET,
-        callbackURL: 'https://just-review-back.vercel.app/auth/github/callback'
+        callbackURL: '/auth/github/callback'
     },
     function (accessToken, refreshToken, profile, email, done) {
 
