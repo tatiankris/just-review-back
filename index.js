@@ -10,6 +10,7 @@ import bodyParser from 'body-parser';
 import passport from 'passport';
 import cookieSession from 'cookie-session';
 import "./passportAuth/passport.js"
+import session from 'express-session'
 
 dotenv.config()
 
@@ -38,7 +39,7 @@ app.use(
     cookieSession({ name: "session", keys: ["myReview"], maxAge: 24 * 60 * 60 * 100 })
 );
 
-
+app.use(session({ secret: 'reviews'}))
 app.use(passport.initialize());
 app.use(passport.session());
 
