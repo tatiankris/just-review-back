@@ -227,7 +227,7 @@ class reviewsOperationsController {
                 return res.status(400).json({message: "No text"})
             }
 
-            const comment = new CommentModel({review, user, text})
+            const comment = new CommentModel({review, user, text, username: user.username, avatar: user.avatar})
             await comment.save()
 
             let commentsSearch = text

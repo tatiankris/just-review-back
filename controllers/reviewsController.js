@@ -268,7 +268,7 @@ class reviewsController {
             }
 
             const review = new Review({userName: user.username, userId: user._id, reviewTitle, workTitle, reviewText, category: reviewCategory, tags: reviewTags, authorGrade,
-            tagsSearch: tagsTitles
+            tagsSearch: tagsTitles, avatar: user.avatar
             })
 
             await review.save()

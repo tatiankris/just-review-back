@@ -15,7 +15,15 @@ const Comment = new Schema({
     text: {
         type: String,
         require: true
-    }
+    },
+    avatar: {
+        type: String,
+    },
+    username: {
+        type: Schema.Types.String,
+        ref: 'User',
+        required: true
+    },
 }, {
     timestamps: true,
 })

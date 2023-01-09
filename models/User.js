@@ -18,7 +18,7 @@ const User = new Schema({
     },
     avatar: {
         type: String,
-        default: 'https://images.pexels.com/photos/20787/pexels-photo.jpg?cs=srgb&dl=pexels-krysten-merriman-20787.jpg&fm=jpg'
+        // default: 'https://images.pexels.com/photos/20787/pexels-photo.jpg?cs=srgb&dl=pexels-krysten-merriman-20787.jpg&fm=jpg'
     },
     likes: [{
         type: Object,

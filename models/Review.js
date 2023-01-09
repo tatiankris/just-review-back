@@ -13,6 +13,9 @@ const Review = new Schema(
             ref: 'User',
             required: true
         },
+        avatar: {
+            type: String,
+        },
         tagsSearch:{
             type: Array,
             default: []

@@ -135,6 +135,49 @@ class imagesController {
         }
     }
 
+    async avatarUpload (data) {
+        try {
+
+            const {userId, file} = data
+
+            if (!userId) {
+                return {messageError: "Data to upload image not found!"}
+            }
+
+            if (!file) {
+                return {warning: "Image was not loaded!"}
+            }
+
+            cloudinary.v2.config({
+                cloud_name: process.env.CLOUD_NAME,
+                api_key: process.env.CLOUD_KEY,
+                api_secret: process.env.CLOUD_KEY_SECRET,
+            })
+
+            const result = await cloudinary.v2.uploader.upload(file, {
+                folder: `users/${userId}`,
+                // width: 300,
+                // height: 140
+                // crop: 'scale'
+            })
+
+            // const image = {
+            //     public_id: result.public_id,
+            //     url: result.secure_url
+            // }
+
+            const image = result.secure_url
+
+            console.log('image', image)
+
+            return image
+        }
+        catch (err) {
+            console.log(err)
+            return {messageError: "Upload image error"}
+        }
+    }
+
 }
 
 export default new imagesController
