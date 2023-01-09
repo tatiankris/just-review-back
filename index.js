@@ -37,6 +37,8 @@ const corsOptions = {
 app.use(
     cookieSession({ name: "session", keys: ["myReview"], maxAge: 24 * 60 * 60 * 100 })
 );
+
+
 app.use(passport.initialize());
 app.use(passport.session());
 

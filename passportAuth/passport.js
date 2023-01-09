@@ -32,7 +32,7 @@ passport.use(new GoogleStrategy({
         const user = {
             email: email
         }
-        done(null, user)
+        return done(null, user)
         // done(null,email, profile)
 
         // const user = {
@@ -56,7 +56,7 @@ passport.use(new GitHubStrategy({
         const user = {
             email: email
         }
-        done(null, user)
+        return done(null, user)
         // done(null,email, profile)
 
         // const user = {
