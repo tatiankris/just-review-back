@@ -26,20 +26,10 @@ passport.use(new GoogleStrategy({
     },
     function (accessToken, refreshToken, profile, email, done) {
 
-        // console.log('email',  email)
-        // console.log('profile',  profile)
-
         const user = {
             email: email
         }
-        return done(null, user)
-        // done(null,email, profile)
-
-        // const user = {
-        //     username: profile.displayName,
-        //     avatar: profile.photos[0]
-        // }
-        // user.save()
+        done(null, user)
 
     }));
 
@@ -50,21 +40,10 @@ passport.use(new GitHubStrategy({
     },
     function (accessToken, refreshToken, profile, email, done) {
 
-        console.log('emailGH',  email)
-        // console.log('profile',  profile)
-
         const user = {
             email: email
         }
-        return done(null, user)
-        // done(null,email, profile)
-
-        // const user = {
-        //     username: profile.displayName,
-        //     avatar: profile.photos[0]
-        // }
-        // user.save()
-
+        done(null, user)
     }));
 
 passport.serializeUser((user, done) => {
